@@ -8,13 +8,7 @@ while(True):
    # if (capright.isOpened() and capleft.isOpened()):
     ret, frameRight = capright.read()
     ret, frameLeft = capleft.read()
-   # else:
-   #     if capright.isOpened():
-   #         capleft.open()
-   #     if capleft.isOpened():
-    #        capright.open()
-    #    ret, frameRight = capright.read()
-   #     ret, frameLeft = capleft.read()
+
     # Our operations on the frame come here
     grayRight = cv2.cvtColor(frameRight, cv2.COLOR_BGR2GRAY)
     grayLeft = cv2.cvtColor(frameLeft, cv2.COLOR_BGR2GRAY)

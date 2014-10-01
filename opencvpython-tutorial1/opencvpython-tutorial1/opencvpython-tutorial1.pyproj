@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>2cd38cde-6646-4524-a53c-82bb4bdba6e3</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>opencvpython_tutorial1.py</StartupFile>
+    <StartupFile>StereoVideoRecorder.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,7 +22,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="opencvpython_tutorial1.py" />
+    <Compile Include="stereoCamTest.py" />
+    <Compile Include="StereoVideoRecorder.py" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
 </Project>
