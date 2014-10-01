@@ -19,12 +19,6 @@ while(True):
     grayRight = cv2.cvtColor(frameRight, cv2.COLOR_BGR2GRAY)
     grayLeft = cv2.cvtColor(frameLeft, cv2.COLOR_BGR2GRAY)
 
-    cv2.namedWindow('rightWindow', 1)
-    cv2.namedWindow('leftWindow', 1)
-
-    # Display the resulting frame
-    cv2.imshow('rightWindow',grayRight)
-    cv2.imshow('leftWindow',grayLeft)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
