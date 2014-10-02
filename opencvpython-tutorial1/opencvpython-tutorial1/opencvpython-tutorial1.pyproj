@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>2cd38cde-6646-4524-a53c-82bb4bdba6e3</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>MaskForTracker.py</StartupFile>
+    <StartupFile>CannyEdgeDetector.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,6 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CannyEdgeDetector.py" />
     <Compile Include="MaskForTracker.py" />
     <Compile Include="stereoCamTest.py" />
     <Compile Include="StereoVideoRecorder.py" />

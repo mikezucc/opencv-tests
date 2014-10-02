@@ -13,8 +13,6 @@ while(1):
     # Convert BGR to HSV
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    
-
     # Threshold the HSV image to get only blue colors
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
 
