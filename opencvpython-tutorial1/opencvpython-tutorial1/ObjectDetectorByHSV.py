@@ -31,7 +31,7 @@ while(True):
     passedContours = []
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if area > 30:
+        if area > 50:
               passedContours.append(cnt)
     cv2.drawContours(resL, passedContours, -1, (0,255,0), 3)
   #  cnt = contours[0]
