@@ -12,6 +12,7 @@ color = ('b','g','r')
 bins = np.arange(256).reshape(256,1)
 color = [ (255,0,0),(0,255,0),(0,0,255) ]
 numpyZeroArr = np.zeros((300,256,3))
+frameCounter = 0;
 while(True):
     # Capture frame-by-frame
    # if (capright.isOpened() and capleft.isOpened()):
@@ -30,7 +31,7 @@ while(True):
     resL = cv2.bitwise_and(frameLeft,frameLeft, mask= maskL)
 
     denoisedMaskL = cv2.morphologyEx(maskL, cv2.MORPH_OPEN, kernel)
-    thresholdGaus = cv2.adaptiveThreshold(denoisedMaskL,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,2)
+   # thresholdGaus = cv2.adaptiveThreshold(denoisedMaskL,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,2)
 
     first,contours, third = cv2.findContours(denoisedMaskL, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     passedContours = []
@@ -51,7 +52,10 @@ while(True):
         hist=np.int32(np.around(hist_item))
         pts = np.column_stack((bins,hist))
         cv2.polylines(h,[pts],False,col)
-    h=np.flipud(h)
+        print "channel: " + str(ch) + " is " + str(h.sum())
+    #h=np.flipud(h)
+
+    
 
     # Display the resulting frame
     cv2.imshow('stream',hsvl)
@@ -59,6 +63,7 @@ while(True):
     cv2.imshow('combined',resL)
     cv2.imshow('threshold',denoisedMaskL)
     cv2.imshow('colorhist',h)
+    frameCounter = frameCounter + 1
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

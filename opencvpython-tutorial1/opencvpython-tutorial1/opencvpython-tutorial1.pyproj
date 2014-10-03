@@ -24,6 +24,7 @@
   <ItemGroup>
     <Compile Include="CannyEdgeDetector.py" />
     <Compile Include="MaskForTracker.py" />
+    <Compile Include="testAPI.py" />
     <Compile Include="ObjectDetectorByHSV.py" />
     <Compile Include="stereoCamTest.py" />
     <Compile Include="StereoVideoRecorder.py" />
