@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+from matplotlib import pyplot as plt
 
 capleft = cv2.VideoCapture(1)
 lower_t = np.array([150,29,20])
@@ -7,6 +8,10 @@ upper_t = np.array([180,255,255])
 #lower_t = np.array([110,50,50])
 #upper_t = np.array([130,255,255])
 kernel = np.ones((3,3),np.uint8)
+color = ('b','g','r')
+bins = np.arange(256).reshape(256,1)
+color = [ (255,0,0),(0,255,0),(0,0,255) ]
+numpyZeroArr = np.zeros((300,256,3))
 while(True):
     # Capture frame-by-frame
    # if (capright.isOpened() and capleft.isOpened()):
@@ -37,12 +42,23 @@ while(True):
   #  cnt = contours[0]
   #  x,y,w,h = cv2.boundingRect(cnt)
   #  cv2.rectangle(resL,(x,y),(x+w,y+h),(0,255,0),2)
+    
+  # display histogram
+    h = numpyZeroArr.copy()
+    for ch, col in enumerate(color):
+        hist_item = cv2.calcHist([frameLeft],[ch],None,[256],[0,255])
+        cv2.normalize(hist_item,hist_item,0,255,cv2.NORM_MINMAX)
+        hist=np.int32(np.around(hist_item))
+        pts = np.column_stack((bins,hist))
+        cv2.polylines(h,[pts],False,col)
+    h=np.flipud(h)
 
     # Display the resulting frame
     cv2.imshow('stream',hsvl)
     cv2.imshow('mask',maskL)
     cv2.imshow('combined',resL)
     cv2.imshow('threshold',denoisedMaskL)
+    cv2.imshow('colorhist',h)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
