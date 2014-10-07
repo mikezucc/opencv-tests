@@ -23,7 +23,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CannyEdgeDetector.py" />
+    <Compile Include="justChessBoardThings.py" />
     <Compile Include="MaskForTracker.py" />
+    <Compile Include="singleRecorder.py" />
     <Compile Include="testAPI.py" />
     <Compile Include="ObjectDetectorByHSV.py" />
     <Compile Include="stereoCamTest.py" />
