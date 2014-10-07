@@ -3,7 +3,7 @@ import cv2
 from matplotlib import pyplot as plt
 
 capleft = cv2.VideoCapture(1)
-lower_t = np.array([150,29,20])
+lower_t = np.array([160,29,20])
 upper_t = np.array([180,255,255])
 #lower_t = np.array([110,50,50])
 #upper_t = np.array([130,255,255])
@@ -37,7 +37,8 @@ while(True):
     passedContours = []
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if area > 50:
+        print 'area of contour is ' + str(area)
+        if area > 500:
               passedContours.append(cnt)
     cv2.drawContours(resL, passedContours, -1, (0,255,0), 3)
   #  cnt = contours[0]
@@ -52,7 +53,7 @@ while(True):
         hist=np.int32(np.around(hist_item))
         pts = np.column_stack((bins,hist))
         cv2.polylines(h,[pts],False,col)
-        print "channel: " + str(ch) + " is " + str(h.sum())
+        #print "channel: " + str(ch) + " is " + str(h.sum())
     #h=np.flipud(h)
 
     
