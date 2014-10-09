@@ -50,29 +50,82 @@ def cameraCalib():
             print "total error: ", mean_error/len(objpoints)
 
             meanErrList.append(mean_error)
-            matrixList.append([ret, mtx, dist, rvecs, tvecs])
+            matrixList.append([mtx, dist, rvecs, tvecs])
 
-            cv2.waitKey(1000)
+            #cv2.waitKey(100)
 
     minErrIdx = meanErrList.index(min(meanErrList))
     selCalibData = matrixList[minErrIdx]
-    print selCalibData
-    np.savez("calibData.npz",selCalibData)
+    #print selCalibData
+    np.save("calibDataMTX",selCalibData[0])
+    np.save("calibDataDIST",selCalibData[1])
+    np.save("calibDataRVECS",selCalibData[2])
+    np.save("calibDataTVECS",selCalibData[3])
+    loadedCalibFileMTX = np.load('calibDataMTX.npy')
+    loadedCalibFileDIST = np.load('calibDataDIST.npy')
+    loadedCalibFileRVECS = np.load('calibDataRVECS.npy')
+    loadedCalibFileTVECS = np.load('calibDataTVECS.npy')
+    print loadedCalibFileMTX
+    print loadedCalibFileDIST
+    print loadedCalibFileRVECS
+    print loadedCalibFileTVECS
+    mtx = loadedCalibFileMTX[0]
+    dist = loadedCalibFileDIST[0]
+    rvecs = loadedCalibFileRVECS[0]
+    tvecs = loadedCalibFileTVECS[0]
+    print mtx
+    print dist
+    print rvecs
+    print tvecs
 
 
 def ARShowAxes():
-    capleft = cv2.VideoCapture(1)
+    capleft = cv2.VideoCapture(0)
     ret, frameLeft = capleft.read()
     width, height = frameLeft.shape[:2]
     adjH = width/2
     adjL = height/2
+
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+    objp = np.zeros((9,3), np.float32)
+    objp[:,:2] = np.mgrid[0:3,0:3].T.reshape(-1,2)
+
+    axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]]).reshape(-1,3)
+
+    #load calib data
+    loadedCalibFileMTX = np.load('calibDataMTX.npy')
+    loadedCalibFileDIST = np.load('calibDataDIST.npy')
+    loadedCalibFileRVECS = np.load('calibDataRVECS.npy')
+    loadedCalibFileTVECS = np.load('calibDataTVECS.npy')
+    print loadedCalibFileMTX
+    print loadedCalibFileDIST
+    print loadedCalibFileRVECS
+    print loadedCalibFileTVECS
+    mtx = loadedCalibFileMTX[0]
+    dist = loadedCalibFileDIST[0]
+    rvecs = loadedCalibFileRVECS[0]
+    tvecs = loadedCalibFileTVECS[0]
+
+
     while (1):
         ret, frameLeft = capleft.read()
-        frame = frameLeft.copy()
+       # frame = frameLeft.copy()
         
-        found, corners = cv2.findChessboardCorners(frameLeft, (3,3))
+        grayframeLeft = cv2.cvtColor(frameLeft,cv2.COLOR_BGR2GRAY)
+        found, corners = cv2.findChessboardCorners(grayframeLeft, (3,3),None)
 
         if (found):
+            corners2 = cv2.cornerSubPix(grayframeLeft,corners,(11,11),(-1,-1),criteria)
+            rvecs, tvecs, inliers = cv2.solvePnPRansac(objp, corners2, loadedCalibFileMTX, loadedCalibFileDIST)
+            # project 3D points to image plane
+            imgpts, jac = cv2.projectPoints(axis, rvecs, tvecs, loadedCalibFileMTX, loadedCalibFileDIST)
+            corner = tuple(corners[0].ravel())
+            try:
+                cv2.line(frameLeft, corner, tuple(imgpts[0].ravel()), (255,0,0), 5)
+                cv2.line(frameLeft, corner, tuple(imgpts[1].ravel()), (0,255,0), 5)
+                cv2.line(frameLeft, corner, tuple(imgpts[2].ravel()), (0,0,255), 5)
+            except:
+                print "lost tracking"
             q = [(0,0)]*4
             e = [(0,0)]*4
 
@@ -97,4 +150,4 @@ def ARShowAxes():
             break
 
 
-cameraCalib()
+ARShowAxes()

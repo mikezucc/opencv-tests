@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>2cd38cde-6646-4524-a53c-82bb4bdba6e3</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ObjectDetectorByHSV.py</StartupFile>
+    <StartupFile>appDev.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
