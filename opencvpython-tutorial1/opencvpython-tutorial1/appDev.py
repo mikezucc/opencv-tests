@@ -78,7 +78,6 @@ def cameraCalib():
     print rvecs
     print tvecs
 
-
 def ARShowAxes():
     capleft = cv2.VideoCapture(0)
     ret, frameLeft = capleft.read()
@@ -86,9 +85,11 @@ def ARShowAxes():
     adjH = width/2
     adjL = height/2
 
+    muffinImg = cv2.imread('muffin.png',0)
+
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-    objp = np.zeros((9,3), np.float32)
-    objp[:,:2] = np.mgrid[0:3,0:3].T.reshape(-1,2)
+    objp = np.zeros((20,3), np.float32)
+    objp[:,:2] = np.mgrid[0:5,0:4].T.reshape(-1,2)
 
     axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]]).reshape(-1,3)
 
@@ -101,25 +102,35 @@ def ARShowAxes():
     print loadedCalibFileDIST
     print loadedCalibFileRVECS
     print loadedCalibFileTVECS
-    mtx = loadedCalibFileMTX[0]
+    mtx = loadedCalibFileMTX
     dist = loadedCalibFileDIST[0]
-    rvecs = loadedCalibFileRVECS[0]
-    tvecs = loadedCalibFileTVECS[0]
+    rvecsLoaded = loadedCalibFileRVECS[0]
+    tvecsLoaded = loadedCalibFileTVECS[0]
 
 
     while (1):
         ret, frameLeft = capleft.read()
-       # frame = frameLeft.copy()
+        # frame = frameLeft.copy()
         
         grayframeLeft = cv2.cvtColor(frameLeft,cv2.COLOR_BGR2GRAY)
-        found, corners = cv2.findChessboardCorners(grayframeLeft, (3,3),None)
+        found, corners = cv2.findChessboardCorners(frameLeft, (5,4),None)
 
         if (found):
             corners2 = cv2.cornerSubPix(grayframeLeft,corners,(11,11),(-1,-1),criteria)
-            rvecs, tvecs, inliers = cv2.solvePnPRansac(objp, corners2, loadedCalibFileMTX, loadedCalibFileDIST)
+            #rvecs, tvecs, inliers = cv2.solvePnPRansac(objp, corners2, loadedCalibFileMTX, loadedCalibFileDIST)
+            #ret, rvecs, tvecs = cv2.solvePnP(objp, corners2, mtx, dist, rvecsLoaded, tvecsLoaded, 0,cv2.ITERATIVE )
+            transfMat = cv2.getPerspectiveTransform(objp, corners2)
+            cv2.warpPerspective(muffinImg, transfMat, (400, 500), muffinImg, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
             # project 3D points to image plane
+            print "new entry \n"
+            print "rvecs: "
+            print rvecs
+            print "tvecs: "
+            print tvecs
             imgpts, jac = cv2.projectPoints(axis, rvecs, tvecs, loadedCalibFileMTX, loadedCalibFileDIST)
-            corner = tuple(corners[0].ravel())
+            print "\nimage points: "
+            print imgpts
+            corner = tuple(corners2[0].ravel())
             try:
                 cv2.line(frameLeft, corner, tuple(imgpts[0].ravel()), (255,0,0), 5)
                 cv2.line(frameLeft, corner, tuple(imgpts[1].ravel()), (0,255,0), 5)
@@ -134,7 +145,7 @@ def ARShowAxes():
             q[2] = corners[8]
             q[3] = corners[6]
             something = q[0][0]
-            print str(something)
+            #print str(something)
             cv2.line(frameLeft, (q[0][0][0],q[0][0][1]) , (q[1][0][0], q[1][0][1]) , (255,0,0),2)
             cv2.line(frameLeft, (q[1][0][0],q[1][0][1]) , (q[2][0][0], q[2][0][1]) , (255,255,0),2)
             cv2.line(frameLeft, (q[2][0][0],q[2][0][1]) , (q[3][0][0], q[3][0][1]) , (255,0,255),2)
@@ -146,6 +157,7 @@ def ARShowAxes():
             #cv2.line(frameLeft, q[3][0] , q[0][0] , (0,0,255),2)
              
         cv2.imshow('stream',frameLeft)
+        cv2.imshow('muffin',muffinImg)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
