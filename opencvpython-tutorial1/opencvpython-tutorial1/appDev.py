@@ -85,7 +85,13 @@ def ARShowAxes():
     adjH = width/2
     adjL = height/2
 
-    muffinImg = cv2.imread('muffin.png',0)
+    muffinImg = cv2.imread('muffin.jpg',0)
+    muffinCoords = np.zeros((4,2), np.float32)
+    muffheight, muffwidth = muffinImg.shape
+    muffinCoords[0] = (0,muffwidth)
+    muffinCoords[1] = (muffwidth,muffheight)
+    muffinCoords[2] = (0,muffheight)
+    muffinCoords[3] = (0,0)
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
     objp = np.zeros((20,3), np.float32)
@@ -118,9 +124,18 @@ def ARShowAxes():
         if (found):
             corners2 = cv2.cornerSubPix(grayframeLeft,corners,(11,11),(-1,-1),criteria)
             #rvecs, tvecs, inliers = cv2.solvePnPRansac(objp, corners2, loadedCalibFileMTX, loadedCalibFileDIST)
-            #ret, rvecs, tvecs = cv2.solvePnP(objp, corners2, mtx, dist, rvecsLoaded, tvecsLoaded, 0,cv2.ITERATIVE )
-            transfMat = cv2.getPerspectiveTransform(objp, corners2)
-            cv2.warpPerspective(muffinImg, transfMat, (400, 500), muffinImg, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
+            ret, rvecs, tvecs = cv2.solvePnP(objp, corners2, mtx, dist, rvecsLoaded, tvecsLoaded, 0,cv2.ITERATIVE )
+            #transfMat = cv2.getPerspectiveTransform(objp, corners2)
+            
+            q = np.zeros((4,2), dtype=np.float32)
+            q = corners[[0, 3, 19, 16]]
+           # q[0] = corners[0][0]
+           # q[1] = corners[3][0]
+          #  q[2] = corners[19][0]
+           # q[3] = corners[16][0]
+
+            retvalHomography, mask = cv2.findHomography(q, muffinCoords, cv2.RANSAC)
+            cv2.warpPerspective(muffinImg, retvalHomography, (400, 500), muffinImg, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
             # project 3D points to image plane
             print "new entry \n"
             print "rvecs: "
@@ -135,6 +150,17 @@ def ARShowAxes():
                 cv2.line(frameLeft, corner, tuple(imgpts[0].ravel()), (255,0,0), 5)
                 cv2.line(frameLeft, corner, tuple(imgpts[1].ravel()), (0,255,0), 5)
                 cv2.line(frameLeft, corner, tuple(imgpts[2].ravel()), (0,0,255), 5)
+
+                imgpts = np.int32(imgpts).reshape(-1,2)
+                # draw ground floor in green
+                frameLeft = cv2.drawContours(frameLeft, [imgpts[:4]],-1,(0,255,0),-3)
+
+                # draw pillars in blue color
+                for i,j in zip(range(4),range(4,8)):
+                    img = cv2.line(frameLeft, tuple(imgpts[i]), tuple(imgpts[j]),(255),3)
+
+                # draw top layer in red color
+                img = cv2.drawContours(frameLeft, [imgpts[4:]],-1,(0,0,255),3)
             except:
                 print "lost tracking"
             q = [(0,0)]*4
