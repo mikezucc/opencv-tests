@@ -95,10 +95,10 @@ def ARShowAxes():
     muffinImg = cv2.imread('muffin.jpg',0)
     muffinCoords = np.zeros((4,2), np.float32)
     muffheight, muffwidth = muffinImg.shape
-    muffinCoords[1] = (0,muffwidth)
-    muffinCoords[2] = (muffwidth,muffheight)
-    muffinCoords[3] = (0,muffheight)
-    muffinCoords[1] = (0,0)
+    muffinCoords[0] = (0,0)
+    muffinCoords[1] = (500,0)
+    muffinCoords[2] = (0,500)
+    muffinCoords[3] = (500,500)
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
     objp = np.zeros((20,3), np.float32)
