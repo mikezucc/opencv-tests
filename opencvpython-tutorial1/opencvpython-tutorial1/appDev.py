@@ -7,14 +7,17 @@ def cameraCalib():
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
     # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-    objp = np.zeros((3*3,3), np.float32)
-    objp[:,:2] = np.mgrid[0:3,0:3].T.reshape(-1,2)
+    objp = np.zeros((5*4,3), np.float32)
+    objp[:,:2] = np.mgrid[0:5,0:4].T.reshape(-1,2)
 
     # Arrays to store object points and image points from all the images.
     objpoints = [] # 3d point in real world space
     imgpoints = [] # 2d points in image plane.
 
     images = glob.glob('./recorded/*.png')
+
+    img = cv2.imread(images[0])
+    cv2.imshow('test',img)
 
     meanErrList = []
     matrixList = []
@@ -24,7 +27,7 @@ def cameraCalib():
         gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
         # Find the chess board corners
-        ret, corners = cv2.findChessboardCorners(gray, (3,3),None)
+        ret, corners = cv2.findChessboardCorners(gray, (5,4),None)
 
         # If found, add object points, image points (after refining them)
         if ret == True:
@@ -34,7 +37,7 @@ def cameraCalib():
             imgpoints.append(corners)
 
             # Draw and display the corners
-            cv2.drawChessboardCorners(img, (3,3), corners,ret)
+            cv2.drawChessboardCorners(img, (5,4), corners,ret)
             cv2.imshow('img',img)
 
             ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
@@ -47,13 +50,17 @@ def cameraCalib():
                 tot_error += error
 
             mean_error = tot_error/(len(xrange(len(objpoints))))
-            print "total error: ", mean_error/len(objpoints)
+            total_error = mean_error/len(objpoints)
+            print "total error: ", total_error
 
-            meanErrList.append(mean_error)
+            meanErrList.append(total_error)
             matrixList.append([mtx, dist, rvecs, tvecs])
 
-            #cv2.waitKey(100)
+            cv2.waitKey(100)
 
+    numpyMeanErrList = np.asarray(meanErrList)
+    #print min(meanErrList)
+    print np.amin(numpyMeanErrList)
     minErrIdx = meanErrList.index(min(meanErrList))
     selCalibData = matrixList[minErrIdx]
     #print selCalibData
@@ -88,10 +95,10 @@ def ARShowAxes():
     muffinImg = cv2.imread('muffin.jpg',0)
     muffinCoords = np.zeros((4,2), np.float32)
     muffheight, muffwidth = muffinImg.shape
-    muffinCoords[0] = (0,muffwidth)
-    muffinCoords[1] = (muffwidth,muffheight)
-    muffinCoords[2] = (0,muffheight)
-    muffinCoords[3] = (0,0)
+    muffinCoords[1] = (0,muffwidth)
+    muffinCoords[2] = (muffwidth,muffheight)
+    muffinCoords[3] = (0,muffheight)
+    muffinCoords[1] = (0,0)
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
     objp = np.zeros((20,3), np.float32)
@@ -123,67 +130,45 @@ def ARShowAxes():
 
         if (found):
             corners2 = cv2.cornerSubPix(grayframeLeft,corners,(11,11),(-1,-1),criteria)
+            cv2.drawChessboardCorners(frameLeft, (5,4), corners2,ret)
             #rvecs, tvecs, inliers = cv2.solvePnPRansac(objp, corners2, loadedCalibFileMTX, loadedCalibFileDIST)
             ret, rvecs, tvecs = cv2.solvePnP(objp, corners2, mtx, dist, rvecsLoaded, tvecsLoaded, 0,cv2.ITERATIVE )
             #transfMat = cv2.getPerspectiveTransform(objp, corners2)
             
             q = np.zeros((4,2), dtype=np.float32)
-            q = corners[[0, 3, 19, 16]]
+            q = corners[[0, 4, 15, 19]]
            # q[0] = corners[0][0]
            # q[1] = corners[3][0]
           #  q[2] = corners[19][0]
            # q[3] = corners[16][0]
 
-            retvalHomography, mask = cv2.findHomography(q, muffinCoords, cv2.RANSAC)
-            cv2.warpPerspective(muffinImg, retvalHomography, (400, 500), muffinImg, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
+            #retvalHomography, mask = cv2.findHomography(q, muffinCoords, cv2.RANSAC)
+            pts1 = np.float32([[56,65],[368,52],[28,387],[389,390]])
+            pts2 = np.float32([[0,0],[300,0],[0,300],[300,300]])
+            ptMatrix = cv2.getPerspectiveTransform( muffinCoords, q)
+            print muffinCoords
+            print q
+            print ptMatrix
+            transMuffin = cv2.warpPerspective(muffinImg, ptMatrix, (400, 500)) #, muffinImg, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
+            cv2.imshow('muffin',transMuffin)
             # project 3D points to image plane
             print "new entry \n"
-            print "rvecs: "
-            print rvecs
-            print "tvecs: "
-            print tvecs
+            #print "rvecs: "
+            #print rvecs
+            #print "tvecs: "
+            #print tvecs
             imgpts, jac = cv2.projectPoints(axis, rvecs, tvecs, loadedCalibFileMTX, loadedCalibFileDIST)
-            print "\nimage points: "
-            print imgpts
+            #print "\nimage points: "
+            #print imgpts
             corner = tuple(corners2[0].ravel())
             try:
                 cv2.line(frameLeft, corner, tuple(imgpts[0].ravel()), (255,0,0), 5)
                 cv2.line(frameLeft, corner, tuple(imgpts[1].ravel()), (0,255,0), 5)
                 cv2.line(frameLeft, corner, tuple(imgpts[2].ravel()), (0,0,255), 5)
-
-                imgpts = np.int32(imgpts).reshape(-1,2)
-                # draw ground floor in green
-                frameLeft = cv2.drawContours(frameLeft, [imgpts[:4]],-1,(0,255,0),-3)
-
-                # draw pillars in blue color
-                for i,j in zip(range(4),range(4,8)):
-                    img = cv2.line(frameLeft, tuple(imgpts[i]), tuple(imgpts[j]),(255),3)
-
-                # draw top layer in red color
-                img = cv2.drawContours(frameLeft, [imgpts[4:]],-1,(0,0,255),3)
             except:
                 print "lost tracking"
-            q = [(0,0)]*4
-            e = [(0,0)]*4
-
-            q[0] = corners[0]
-            q[1] = corners[2]
-            q[2] = corners[8]
-            q[3] = corners[6]
-            something = q[0][0]
-            #print str(something)
-            cv2.line(frameLeft, (q[0][0][0],q[0][0][1]) , (q[1][0][0], q[1][0][1]) , (255,0,0),2)
-            cv2.line(frameLeft, (q[1][0][0],q[1][0][1]) , (q[2][0][0], q[2][0][1]) , (255,255,0),2)
-            cv2.line(frameLeft, (q[2][0][0],q[2][0][1]) , (q[3][0][0], q[3][0][1]) , (255,0,255),2)
-            cv2.line(frameLeft, (q[3][0][0],q[3][0][1]) , (q[0][0][0], q[0][0][1]) , (0,0,255),2)
-
-
-            #cv2.line(frameLeft, q[1][0] , q[2][0] , (255,255,0),2)
-           # cv2.line(frameLeft, q[2][0] , q[3][0] , (255,0,255),2)
-            #cv2.line(frameLeft, q[3][0] , q[0][0] , (0,0,255),2)
              
         cv2.imshow('stream',frameLeft)
-        cv2.imshow('muffin',muffinImg)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
