@@ -92,13 +92,13 @@ def ARShowAxes():
     adjH = width/2
     adjL = height/2
 
-    muffinImg = cv2.imread('muffin.jpg',0)
+    muffinImg = cv2.imread('fuckface.jpg',1)
     muffinCoords = np.zeros((4,2), np.float32)
-    muffheight, muffwidth = muffinImg.shape
+    #muffheight, muffwidth = muffinImg.shape
     muffinCoords[0] = (0,0)
-    muffinCoords[1] = (500,0)
-    muffinCoords[2] = (0,500)
-    muffinCoords[3] = (500,500)
+    muffinCoords[1] = (200,0)
+    muffinCoords[2] = (0,200)
+    muffinCoords[3] = (200,200)
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
     objp = np.zeros((20,3), np.float32)
@@ -149,7 +149,7 @@ def ARShowAxes():
             print muffinCoords
             print q
             print ptMatrix
-            transMuffin = cv2.warpPerspective(muffinImg, ptMatrix, (400, 500)) #, muffinImg, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
+            transMuffin = cv2.warpPerspective(muffinImg, ptMatrix, (480, 400)) #, muffinImg, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
             cv2.imshow('muffin',transMuffin)
             # project 3D points to image plane
             print "new entry \n"
@@ -161,13 +161,33 @@ def ARShowAxes():
             #print "\nimage points: "
             #print imgpts
             corner = tuple(corners2[0].ravel())
+
+                # I want to put logo on top-left corner, So I create a ROI
+            rows,cols,channels = transMuffin.shape
+            roi = frameLeft[0:rows, 0:cols ]
+
+            # Now create a mask of logo and create its inverse mask also
+            transMuffingray = cv2.cvtColor(transMuffin,cv2.COLOR_BGR2GRAY)
+            ret, mask = cv2.threshold(transMuffingray, 10, 255, cv2.THRESH_BINARY)
+            mask_inv = cv2.bitwise_not(mask)
+
+            # Now black-out the area of logo in ROI
+            frameLeft_bg = cv2.bitwise_and(roi,roi,mask = mask_inv)
+
+            # Take only region of logo from logo image.
+            transMuffin_fg = cv2.bitwise_and(transMuffin,transMuffin,mask = mask)
+
+            # Put logo in ROI and modify the main image
+            dst = cv2.add(frameLeft_bg,transMuffin_fg)
+            frameLeft[0:rows, 0:cols ] = dst
+
             try:
                 cv2.line(frameLeft, corner, tuple(imgpts[0].ravel()), (255,0,0), 5)
                 cv2.line(frameLeft, corner, tuple(imgpts[1].ravel()), (0,255,0), 5)
                 cv2.line(frameLeft, corner, tuple(imgpts[2].ravel()), (0,0,255), 5)
             except:
                 print "lost tracking"
-             
+            
         cv2.imshow('stream',frameLeft)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
