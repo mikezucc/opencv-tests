@@ -34,10 +34,10 @@ capleft = cv2.VideoCapture(0)
 cv2.namedWindow('muffin', cv2.WINDOW_AUTOSIZE)
 
 muffinCoords = np.zeros((4,2), np.float32)
-muffinCoords[0] = (0,0)
-muffinCoords[1] = (200,0)
-muffinCoords[2] = (0,200)
-muffinCoords[3] = (200,200)
+muffinCoords[0] = (200,200)
+muffinCoords[1] = (400,200)
+muffinCoords[2] = (200,400)
+muffinCoords[3] = (400,400)
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 objp = np.zeros((20,3), np.float32)
 objp[:,:2] = np.mgrid[0:5,0:4].T.reshape(-1,2)
@@ -182,6 +182,7 @@ def transformTheSurface(inputFrame):
         corners2 = cv2.cornerSubPix(inputFrameGray,corners,(11,11),(-1,-1),criteria)
         q = corners2[[0, 4, 15, 19]]
         ptMatrix = cv2.getPerspectiveTransform( muffinCoords, q)
+        npGameFrame = cv2.flip(npGameFrame, 0)
         #inputFrameConv = cv2.cvtColor(npGameFrame,cv2.COLOR_BGRA2GRAY)
         transMuffin = cv2.warpPerspective(npGameFrame, ptMatrix, (640, 480)) #, muffinImg, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
         # I want to put logo on top-left corner, So I create a ROI
