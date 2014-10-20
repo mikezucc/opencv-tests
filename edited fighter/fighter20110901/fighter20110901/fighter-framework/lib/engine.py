@@ -271,15 +271,17 @@ class Renderer(UpdateableObject):
         self.zoom = 1
         self.scratch_surface = pygame.Surface((0,0))
         self.use_zoom = False
-        self.background = None
+        self.background = pygame.Surface((644, 406), pygame.SRCALPHA, 32)
         self.redraw = False
 
     def set_background(self, image):
-        self.background = image
+        self.background = pygame.Surface((644, 406), pygame.SRCALPHA, 32)
         self.redraw = True
 
     def clear(self, surface):
         bgd = self.background
+        bgd = pygame.Surface((644, 406), pygame.SRCALPHA, 32)
+        self.background = bgd
         try:
             bgd.__call__
         except AttributeError:
@@ -300,7 +302,9 @@ class Renderer(UpdateableObject):
                         surface_blit(bgd, r2, r2)
                 else:
                     surface_blit(bgd, r, r)
-
+        bgd = self.background
+        bgd = pygame.Surface((644, 406), pygame.SRCALPHA, 32)
+        self.background = bgd
     # this is called on the first time of a draw
     # sets a buffer for zooming, and converts the frame for the
     # surface to be blitted, then sets draw to the normal func
@@ -308,11 +312,13 @@ class Renderer(UpdateableObject):
         self.scratch_surface = pygame.Surface(surface.get_size())
         self.scratch_surface.convert(surface)
         self.draw = self.real_draw
+        surface = pygame.Surface((644, 406), pygame.SRCALPHA, 32)
         return self.draw(surface)
 
     def real_draw(self, surface):
 
         if self.redraw:
+            self.background = pygame.Surface((644, 406), pygame.SRCALPHA, 32)
             surface.blit(self.background, (0,0))
             self.redraw = False
 
@@ -372,6 +378,7 @@ class Renderer(UpdateableObject):
                 pass
 
         self.lostsprites = dirty
+
         return dirty
 
     def zoom_draw(self, surface):

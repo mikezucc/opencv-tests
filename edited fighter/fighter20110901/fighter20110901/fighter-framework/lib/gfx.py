@@ -70,6 +70,7 @@ def set_background(surface):
 
 # return a surface for drawing onto the window
 def get_display():
+    #mainSurface.fill((0,0,0))
     if DOUBLE_SIZE:
         return screen_buffer
     else:
@@ -146,7 +147,12 @@ def update_display():
         #dirty = group.draw(screen_buffer)
         scale(screen_buffer, (644, 406), screen)
         #pygame.transform.scale2x(screen_buffer, screen)
-
+    currSurf = pygame.display.get_surface()
+    currSurf = pygame.Surface((644, 406), pygame.SRCALPHA, 32)
+    #mask.fill
+    #mask.set_alpha(255)
+    #currSurf.blit(mask,(0,0),special_flags=(pygame.BLEND_RGBA_SUB))
+    #self.world.view.set_background(pygame.Surface((644, 406), pygame.SRCALPHA, 32))
     pygame.display.update()
 
 def draw(background):
