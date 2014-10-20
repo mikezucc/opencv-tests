@@ -99,7 +99,7 @@ class Match(GameState):
         self.post_round_pause = False
         self.world = engine.StaticWorld(self._driver.get_size())
         #self.world.view.set_background(gfx.load_image("images/bkgd-croppstrans.png")[0])
-        self.world.view.set_background(pygame.Surface((644, 406), pygame.SRCALPHA, 32))
+        self.world.view.set_background(gfx.load_image("images/bkgd-cropblack.png")[0])
         
     def update(self, time):
         self.world.update(time)
@@ -168,8 +168,8 @@ class Match(GameState):
 class BasicMatch(Match):
     def __init__(self, driver):
         super(BasicMatch, self).__init__(driver)
-        self.background = gfx.load_image("images/bkgd-croptrans.png")[0]
-        self.buff = gfx.load_image("images/bkgd-croptrans.png")[0]
+        self.background = gfx.load_image("images/bkgd-cropblack.png")[0]
+        self.buff = gfx.load_image("images/bkgd-cropblack.png")[0]
         self.banner_image = \
             gfx.load_image_with_colorkey("images/fight_banner_border.png")
 

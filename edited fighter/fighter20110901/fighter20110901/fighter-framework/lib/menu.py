@@ -46,7 +46,7 @@ class TitleMenu(GameState):
         self.reactivate()
 
     def reactivate(self):
-        self._driver.get_screen().blit(gfx.load_image("images/bkgd-croppstrans.png")[0], (0,0))
+        self._driver.get_screen().blit(gfx.load_image("images/bkgd-cropblack.png")[0], (0,0))
         pass
 
     def deactivate(self):
