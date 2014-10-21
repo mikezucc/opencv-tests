@@ -37,12 +37,26 @@ muffinCoords[0] = (200,200)
 muffinCoords[1] = (400,200)
 muffinCoords[2] = (200,400)
 muffinCoords[3] = (400,400)
+
+muffinIll = np.zeros((3,2), np.float32)
+muffinIll[0] = (200,200)
+muffinIll[1] = (400,200)
+muffinIll[2] = (300,400)
+
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 objp = np.zeros((20,3), np.float32)
 objp[:,:2] = np.mgrid[0:5,0:4].T.reshape(-1,2)
+axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]]).reshape(-1,3)
 q = np.zeros((4,2), dtype=np.float32)
 isDisplayed = False
 
+#load calib data
+loadedCalibFileMTX = np.load('calibDataMTX.npy')
+loadedCalibFileDIST = np.load('calibDataDIST.npy')
+print loadedCalibFileMTX
+print loadedCalibFileDIST
+mtx = loadedCalibFileMTX
+dist = loadedCalibFileDIST[0]
 
 class GameState(object):
     def __init__(self, driver):
@@ -164,20 +178,26 @@ class StateDriver(object):
 
 def transformTheSurface(inputFrame):
     ret, frameLeft = capleft.read()
-    #inputFrameGray = cv2.cvtColor(inputFrame,cv2.COLOR_BGR2GRAY)
-    found, corners = cv2.findChessboardCorners(frameLeft, (5,4)) #,None,cv2.CALIB_CB_FAST_CHECK)
+    capGray = cv2.cvtColor(frameLeft,cv2.COLOR_BGR2GRAY)
+    found, corners = cv2.findChessboardCorners(capGray, (5,4), None, cv2.CALIB_CB_NORMALIZE_IMAGE + cv2.CALIB_CB_ADAPTIVE_THRESH ) #,None,cv2.CALIB_CB_FAST_CHECK)
     if (found):
         npGameFrame = pygame.surfarray.array3d(inputFrame)
         inputFrameGray = cv2.cvtColor(npGameFrame,cv2.COLOR_BGR2GRAY)
-        corners2 = cv2.cornerSubPix(inputFrameGray,corners,(11,11),(-1,-1),criteria)
-        q = corners2[[0, 4, 15, 19]]
+        #corners2 = cv2.cornerSubPix(inputFrameGray,corners,(7,7),(-1,-1),criteria)
+        cv2.drawChessboardCorners(frameLeft, (5,4), corners, found)
+        q = corners[[0, 4, 15, 19]]
         ptMatrix = cv2.getPerspectiveTransform( muffinCoords, q)
         npGameFrame = cv2.flip(npGameFrame, 0)
         #inputFrameConv = cv2.cvtColor(npGameFrame,cv2.COLOR_BGRA2GRAY)
         transMuffin = cv2.warpPerspective(npGameFrame, ptMatrix, (640, 480)) #, muffinImg, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
+
+        #ret, rvecs, tvecs = cv2.solvePnP(objp, corners2, mtx, dist)
+        #rodRotMat = cv2.Rodrigues(rvecs)
+        #print 'new mat'
+        #print rodRotMat
         # I want to put logo on top-left corner, So I create a ROI
         rows,cols,channels = transMuffin.shape
-        roi = frameLeft[0:rows, 0:cols ]
+        roi = frameLeft[0:rows, 0:cols]
 
         # Now create a mask of logo and create its inverse mask also
         transMuffingray = cv2.cvtColor(transMuffin,cv2.COLOR_BGR2GRAY)
