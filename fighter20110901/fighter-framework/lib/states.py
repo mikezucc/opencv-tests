@@ -187,9 +187,18 @@ def transformTheSurface(inputFrame):
         cv2.drawChessboardCorners(frameLeft, (5,4), corners, found)
         q = corners[[0, 4, 15, 19]]
         ptMatrix = cv2.getPerspectiveTransform( muffinCoords, q)
+        
+        ptMatrixflip = np.flipud(ptMatrix)
         npGameFrame = cv2.flip(npGameFrame, 0)
+
+        # derive own rotation matrix
+        #XRotMat = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        xRotVect = np.array([1, 0, 0], dtype=np.float)
+        xRotMatRod = cv2.Rodrigues(xRotVect)
+        print ptMatrix
+        ptMatrixWithXRot = ptMatrix.dot(xRotMatRod)
         #inputFrameConv = cv2.cvtColor(npGameFrame,cv2.COLOR_BGRA2GRAY)
-        transMuffin = cv2.warpPerspective(npGameFrame, ptMatrix, (640, 480)) #, muffinImg, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
+        transMuffin = cv2.warpPerspective(npGameFrame, ptMatrixWithXRot, (640, 480)) #, muffinImg, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
 
         #ret, rvecs, tvecs = cv2.solvePnP(objp, corners2, mtx, dist)
         #rodRotMat = cv2.Rodrigues(rvecs)
