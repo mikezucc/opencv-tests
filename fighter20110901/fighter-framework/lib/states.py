@@ -33,10 +33,26 @@ capleft = cv2.VideoCapture(0)
 cv2.namedWindow('muffin', cv2.WINDOW_AUTOSIZE)
 
 muffinCoords = np.zeros((4,2), np.float32)
-muffinCoords[0] = (200,200)
-muffinCoords[1] = (400,200)
-muffinCoords[2] = (200,400)
-muffinCoords[3] = (400,400)
+muffinCoords[0] = (0,0)
+muffinCoords[1] = (200,0)
+muffinCoords[2] = (0,200)
+muffinCoords[3] = (200,200)
+
+A1 = np.zeros((4,3), np.float32)
+A1[0] = (1,0,322)
+A1[1] = (0,1,203)
+A1[2] = (0,0,0)
+A1[3] = (0,0,1)
+
+rvecs = np.zeros((4,4), np.float32)
+rvecs[3,3] = 1.0
+print rvecs
+
+T = np.zeros((4,4), np.float32)
+T[0] = (1,0,0,0)
+T[1] = (0,1,0,0)
+T[2] = (0,0,1,0)
+T[3] = (0,0,0,1)
 
 muffinIll = np.zeros((3,2), np.float32)
 muffinIll[0] = (200,200)
@@ -53,10 +69,10 @@ isDisplayed = False
 #load calib data
 loadedCalibFileMTX = np.load('calibDataMTX.npy')
 loadedCalibFileDIST = np.load('calibDataDIST.npy')
-print loadedCalibFileMTX
-print loadedCalibFileDIST
-mtx = loadedCalibFileMTX
+mtx = np.zeros((3,4), np.float32)
+mtx[:3,:3] = loadedCalibFileMTX
 dist = loadedCalibFileDIST[0]
+print mtx
 
 class GameState(object):
     def __init__(self, driver):
@@ -186,22 +202,47 @@ def transformTheSurface(inputFrame):
         #corners2 = cv2.cornerSubPix(inputFrameGray,corners,(7,7),(-1,-1),criteria)
         cv2.drawChessboardCorners(frameLeft, (5,4), corners, found)
         q = corners[[0, 4, 15, 19]]
-        ptMatrix = cv2.getPerspectiveTransform( muffinCoords, q)
-        
+        ret, rvecCalc, tvecs = cv2.solvePnP(objp, corners, loadedCalibFileMTX, dist)
+        rvecs[:3,:3] = rvecCalc
+        rodRotMat = cv2.Rodrigues(rvecCalc)
+        rvecs[:3,:3] = rodRotMat[0]
+        ptMatrix = cv2.getPerspectiveTransform( q, muffinCoords)
+        print ptMatrix
+        #rvecsExpanded = rvecs.resize(4,4)
+
+        T[0,3] = tvecs[0]
+        T[1,3] = tvecs[1]
+        T[2,3] = tvecs[2]
+
         ptMatrixflip = np.flipud(ptMatrix)
         npGameFrame = cv2.flip(npGameFrame, 0)
 
         # derive own rotation matrix
+        # METHOD 1 constant angles
         #XRotMat = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        xRotVect = np.array([1, 0, 0], dtype=np.float)
-        xRotMatRod = cv2.Rodrigues(xRotVect)
-        print ptMatrix
-        ptMatrixWithXRot = ptMatrix.dot(xRotMatRod)
+        #xRotVect = np.array([3, 0, 0], dtype=np.float)
+        #xRotMatRod = cv2.Rodrigues(xRotVect)
+        #ptMatrixWithXRot = ptMatrix * xRotMatRod[0]
+        
+        ptMatrixWithXRot = ptMatrix * rodRotMat[0]
         #inputFrameConv = cv2.cvtColor(npGameFrame,cv2.COLOR_BGRA2GRAY)
-        transMuffin = cv2.warpPerspective(npGameFrame, ptMatrixWithXRot, (640, 480)) #, muffinImg, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
 
-        #ret, rvecs, tvecs = cv2.solvePnP(objp, corners2, mtx, dist)
-        #rodRotMat = cv2.Rodrigues(rvecs)
+        # CREATING CUSTOM TRANSFORM MATRIX
+        # A1 -> 2d to 3d projection matrix http://jepsonsblog.blogspot.in/2012/11/rotation-in-3d-using-opencvs.html
+        # rvecs -> rotation matrix as calculated by solve PnP, or Rx * Ry * Rz
+        # T -> converted translation matrix, reference from site, vectors pulled from tvecs of solvPnP
+        # mtx -> 3d to 2d matrix
+        #customTransformMat = mtx * (T * (rvecs * A1))
+        first = np.dot(rvecs, A1)
+        second = np.dot(T, first)
+        finalCalc = np.dot(mtx, second)
+        finalNorm = finalCalc/(finalCalc[2,2])
+        finalPT = np.dot(finalNorm,ptMatrix)
+        finalPTNorm = finalPT/(finalPT[2,2])
+        #print finalPTNorm
+        transMuffin = cv2.warpPerspective(npGameFrame, ptMatrix, (640, 480), None, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
+
+        
         #print 'new mat'
         #print rodRotMat
         # I want to put logo on top-left corner, So I create a ROI
@@ -223,7 +264,7 @@ def transformTheSurface(inputFrame):
         dst = cv2.add(frameLeft_bg,transMuffin_fg)
         frameLeft[0:rows, 0:cols ] = dst
         frameLeft = cv2.cvtColor(frameLeft,cv2.COLOR_RGB2BGR)
-        cv2.imshow('muffin',frameLeft)
+        cv2.imshow('muffin',transMuffin)
     else:
         print 'cant find corners'
 
