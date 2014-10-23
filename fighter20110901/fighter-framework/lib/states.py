@@ -62,7 +62,7 @@ muffinIll[2] = (300,400)
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 objp = np.zeros((20,3), np.float32)
 objp[:,:2] = np.mgrid[0:5,0:4].T.reshape(-1,2)
-axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]]).reshape(-1,3)
+muffinFrameBase = np.float32([[0,0,0], [3,0,0],  [0,3,0], [3,3,0]]).reshape(-1,3)
 q = np.zeros((4,2), dtype=np.float32)
 isDisplayed = False
 
@@ -198,24 +198,28 @@ def transformTheSurface(inputFrame):
     found, corners = cv2.findChessboardCorners(capGray, (5,4), None, cv2.CALIB_CB_NORMALIZE_IMAGE + cv2.CALIB_CB_ADAPTIVE_THRESH ) #,None,cv2.CALIB_CB_FAST_CHECK)
     if (found):
         npGameFrame = pygame.surfarray.array3d(inputFrame)
+        npGameFrame = cv2.flip(npGameFrame, 0)
         inputFrameGray = cv2.cvtColor(npGameFrame,cv2.COLOR_BGR2GRAY)
         #corners2 = cv2.cornerSubPix(inputFrameGray,corners,(7,7),(-1,-1),criteria)
         cv2.drawChessboardCorners(frameLeft, (5,4), corners, found)
         q = corners[[0, 4, 15, 19]]
-        ret, rvecCalc, tvecs = cv2.solvePnP(objp, corners, loadedCalibFileMTX, dist)
+        ret, rvecCalc, tvecs = cv2.solvePnP(objp, corners, loadedCalibFileMTX, loadedCalibFileDIST)
+        from3dTransMatrix, jac = cv2.projectPoints(muffinFrameBase, rvecCalc, tvecs, loadedCalibFileMTX, loadedCalibFileDIST)
+        #print from3dTransMatrix
         rvecs[:3,:3] = rvecCalc
         rodRotMat = cv2.Rodrigues(rvecCalc)
         rvecs[:3,:3] = rodRotMat[0]
-        ptMatrix = cv2.getPerspectiveTransform( q, muffinCoords)
-        print ptMatrix
+        ptMatrix = cv2.getPerspectiveTransform( q, from3dTransMatrix)
         #rvecsExpanded = rvecs.resize(4,4)
+        print ptMatrix
+        npGameFrameRemap = cv2.remap(npGameFrame, ptMatrix, None, cv2.INTER_LINEAR)
 
         T[0,3] = tvecs[0]
         T[1,3] = tvecs[1]
         T[2,3] = tvecs[2]
 
-        ptMatrixflip = np.flipud(ptMatrix)
-        npGameFrame = cv2.flip(npGameFrame, 0)
+        #ptMatrixflip = np.flipud(ptMatrix)
+        
 
         # derive own rotation matrix
         # METHOD 1 constant angles
@@ -224,7 +228,7 @@ def transformTheSurface(inputFrame):
         #xRotMatRod = cv2.Rodrigues(xRotVect)
         #ptMatrixWithXRot = ptMatrix * xRotMatRod[0]
         
-        ptMatrixWithXRot = ptMatrix * rodRotMat[0]
+        #ptMatrixWithXRot = ptMatrix * rodRotMat[0]
         #inputFrameConv = cv2.cvtColor(npGameFrame,cv2.COLOR_BGRA2GRAY)
 
         # CREATING CUSTOM TRANSFORM MATRIX
@@ -233,12 +237,12 @@ def transformTheSurface(inputFrame):
         # T -> converted translation matrix, reference from site, vectors pulled from tvecs of solvPnP
         # mtx -> 3d to 2d matrix
         #customTransformMat = mtx * (T * (rvecs * A1))
-        first = np.dot(rvecs, A1)
-        second = np.dot(T, first)
-        finalCalc = np.dot(mtx, second)
-        finalNorm = finalCalc/(finalCalc[2,2])
-        finalPT = np.dot(finalNorm,ptMatrix)
-        finalPTNorm = finalPT/(finalPT[2,2])
+        #first = np.dot(rvecs, A1)
+        #second = np.dot(T, first)
+        #finalCalc = np.dot(mtx, second)
+        #finalNorm = finalCalc/(finalCalc[2,2])
+        #finalPT = np.dot(finalNorm,ptMatrix)
+        #finalPTNorm = finalPT/(finalPT[2,2])
         #print finalPTNorm
         transMuffin = cv2.warpPerspective(npGameFrame, ptMatrix, (640, 480), None, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
 
@@ -264,7 +268,7 @@ def transformTheSurface(inputFrame):
         dst = cv2.add(frameLeft_bg,transMuffin_fg)
         frameLeft[0:rows, 0:cols ] = dst
         frameLeft = cv2.cvtColor(frameLeft,cv2.COLOR_RGB2BGR)
-        cv2.imshow('muffin',transMuffin)
+        cv2.imshow('muffin',npGameFrameRemap)
     else:
         print 'cant find corners'
 
