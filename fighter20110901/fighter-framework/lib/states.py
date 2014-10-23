@@ -34,9 +34,9 @@ cv2.namedWindow('muffin', cv2.WINDOW_AUTOSIZE)
 
 muffinCoords = np.zeros((4,2), np.float32)
 muffinCoords[2] = (0,0)
-muffinCoords[0] = (200,0)
-muffinCoords[3] = (0,200)
-muffinCoords[1] = (200,200)
+muffinCoords[0] = (400,0)
+muffinCoords[3] = (0,400)
+muffinCoords[1] = (400,400)
 
 A1 = np.zeros((4,3), np.float32)
 A1[0] = (1,0,322)
@@ -63,7 +63,7 @@ criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 objp = np.zeros((20,3), np.float32)
 objp[:,:2] = np.mgrid[0:5,0:4].T.reshape(-1,2)
 kMult = 2 #size multiplier for rendered frame
-muffinFrameBase = np.float32([[-2,0,0], [2,0,0],  [-2,0,-4], [2,0,-4]]).reshape(-1,3)
+muffinFrameBase = np.float32([[4,0,0], [0,0,0], [4,0,-4], [0,0,-4]]).reshape(-1,3)
 #muffinFrameBase = muffinFrameBase * kMult
 q = np.zeros((4,2), dtype=np.float32)
 isDisplayed = False
