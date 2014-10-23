@@ -62,7 +62,7 @@ muffinIll[2] = (300,400)
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 objp = np.zeros((20,3), np.float32)
 objp[:,:2] = np.mgrid[0:5,0:4].T.reshape(-1,2)
-muffinFrameBase = np.float32([[0,0,0], [3,0,0],  [0,3,0], [3,3,0]]).reshape(-1,3)
+muffinFrameBase = np.float32([[0,0,0], [3,0,0],  [0,0,-3], [3,0,-3]]).reshape(-1,3)
 q = np.zeros((4,2), dtype=np.float32)
 isDisplayed = False
 
@@ -197,26 +197,30 @@ def transformTheSurface(inputFrame):
     capGray = cv2.cvtColor(frameLeft,cv2.COLOR_BGR2GRAY)
     found, corners = cv2.findChessboardCorners(capGray, (5,4), None, cv2.CALIB_CB_NORMALIZE_IMAGE + cv2.CALIB_CB_ADAPTIVE_THRESH ) #,None,cv2.CALIB_CB_FAST_CHECK)
     if (found):
-        npGameFrame = pygame.surfarray.array3d(inputFrame)
-        npGameFrame = cv2.flip(npGameFrame, 0)
-        inputFrameGray = cv2.cvtColor(npGameFrame,cv2.COLOR_BGR2GRAY)
+        #npGameFrame = pygame.surfarray.array3d(inputFrame)
+        #npGameFrame = cv2.flip(npGameFrame, 0)
+        #inputFrameGray = cv2.cvtColor(npGameFrame,cv2.COLOR_BGR2GRAY)
         #corners2 = cv2.cornerSubPix(inputFrameGray,corners,(7,7),(-1,-1),criteria)
-        cv2.drawChessboardCorners(frameLeft, (5,4), corners, found)
-        q = corners[[0, 4, 15, 19]]
+        #cv2.drawChessboardCorners(frameLeft, (5,4), corners, found)
+        #q = corners[[0, 4, 15, 19]]
         ret, rvecCalc, tvecs = cv2.solvePnP(objp, corners, loadedCalibFileMTX, loadedCalibFileDIST)
         from3dTransMatrix, jac = cv2.projectPoints(muffinFrameBase, rvecCalc, tvecs, loadedCalibFileMTX, loadedCalibFileDIST)
         #print from3dTransMatrix
-        rvecs[:3,:3] = rvecCalc
-        rodRotMat = cv2.Rodrigues(rvecCalc)
-        rvecs[:3,:3] = rodRotMat[0]
-        ptMatrix = cv2.getPerspectiveTransform( q, from3dTransMatrix)
+        #rvecs[:3,:3] = rvecCalc
+        #rodRotMat = cv2.Rodrigues(rvecCalc)
+        #rvecs[:3,:3] = rodRotMat[0]
+        #ptMatrix = cv2.getPerspectiveTransform( q, from3dTransMatrix)
         #rvecsExpanded = rvecs.resize(4,4)
-        print ptMatrix
-        npGameFrameRemap = cv2.remap(npGameFrame, ptMatrix, None, cv2.INTER_LINEAR)
-
-        T[0,3] = tvecs[0]
-        T[1,3] = tvecs[1]
-        T[2,3] = tvecs[2]
+        #print ptMatrix
+        #npGameFrameRemap = cv2.remap(npGameFrame, ptMatrix, None, cv2.INTER_LINEAR)
+        print from3dTransMatrix[0][0][0]
+        cv2.circle(frameLeft, (from3dTransMatrix[0][0][0],from3dTransMatrix[0][0][1]), 5, (255,0,0), -1, cv2.LINE_AA)
+        cv2.circle(frameLeft, (from3dTransMatrix[1][0][0],from3dTransMatrix[1][0][1]), 5, (255,0,0), -1, cv2.LINE_AA)
+        cv2.circle(frameLeft, (from3dTransMatrix[2][0][0],from3dTransMatrix[2][0][1]), 5, (255,0,0), -1, cv2.LINE_AA)
+        cv2.circle(frameLeft, (from3dTransMatrix[3][0][0],from3dTransMatrix[3][0][1]), 5, (255,0,0), -1, cv2.LINE_AA)
+        #T[0,3] = tvecs[0]
+        #T[1,3] = tvecs[1]
+        #T[2,3] = tvecs[2]
 
         #ptMatrixflip = np.flipud(ptMatrix)
         
@@ -244,31 +248,31 @@ def transformTheSurface(inputFrame):
         #finalPT = np.dot(finalNorm,ptMatrix)
         #finalPTNorm = finalPT/(finalPT[2,2])
         #print finalPTNorm
-        transMuffin = cv2.warpPerspective(npGameFrame, ptMatrix, (640, 480), None, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
+        #transMuffin = cv2.warpPerspective(npGameFrame, ptMatrix, (640, 480), None, cv2.INTER_NEAREST, cv2.BORDER_CONSTANT,  0)
 
         
         #print 'new mat'
         #print rodRotMat
         # I want to put logo on top-left corner, So I create a ROI
-        rows,cols,channels = transMuffin.shape
-        roi = frameLeft[0:rows, 0:cols]
+        #rows,cols,channels = transMuffin.shape
+        #roi = frameLeft[0:rows, 0:cols]
 
         # Now create a mask of logo and create its inverse mask also
-        transMuffingray = cv2.cvtColor(transMuffin,cv2.COLOR_BGR2GRAY)
-        ret, mask = cv2.threshold(transMuffingray, 10, 255, cv2.THRESH_BINARY)
-        mask_inv = cv2.bitwise_not(mask)
+        #transMuffingray = cv2.cvtColor(transMuffin,cv2.COLOR_BGR2GRAY)
+        #ret, mask = cv2.threshold(transMuffingray, 10, 255, cv2.THRESH_BINARY)
+        #mask_inv = cv2.bitwise_not(mask)
 
         # Now black-out the area of logo in ROI
-        frameLeft_bg = cv2.bitwise_and(roi,roi,mask = mask_inv)
+        #frameLeft_bg = cv2.bitwise_and(roi,roi,mask = mask_inv)
 
         # Take only region of logo from logo image.
-        transMuffin_fg = cv2.bitwise_and(transMuffin,transMuffin,mask = mask)
+        #transMuffin_fg = cv2.bitwise_and(transMuffin,transMuffin,mask = mask)
 
         # Put logo in ROI and modify the main image
-        dst = cv2.add(frameLeft_bg,transMuffin_fg)
-        frameLeft[0:rows, 0:cols ] = dst
-        frameLeft = cv2.cvtColor(frameLeft,cv2.COLOR_RGB2BGR)
-        cv2.imshow('muffin',npGameFrameRemap)
+        #dst = cv2.add(frameLeft_bg,transMuffin_fg)
+        #frameLeft[0:rows, 0:cols ] = dst
+        #frameLeft = cv2.cvtColor(frameLeft,cv2.COLOR_RGB2BGR)
+        cv2.imshow('muffin',frameLeft)
     else:
         print 'cant find corners'
 
