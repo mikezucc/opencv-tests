@@ -63,7 +63,7 @@ criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 objp = np.zeros((20,3), np.float32)
 objp[:,:2] = np.mgrid[0:5,0:4].T.reshape(-1,2)
 kMult = 2 #size multiplier for rendered frame
-muffinFrameBase = np.float32([[4,0,0], [0,0,0], [4,0,-4], [0,0,-4]]).reshape(-1,3)
+muffinFrameBase = np.float32([[6,0,0], [0,0,0], [6,0,-6], [0,0,-6]]).reshape(-1,3)
 #muffinFrameBase = muffinFrameBase * kMult
 q = np.zeros((4,2), dtype=np.float32)
 isDisplayed = False
@@ -203,7 +203,7 @@ def transformTheSurface(inputFrame):
         #npGameFrame = cv2.flip(npGameFrame, 0)
         #inputFrameGray = cv2.cvtColor(npGameFrame,cv2.COLOR_BGR2GRAY)
         #corners2 = cv2.cornerSubPix(inputFrameGray,corners,(7,7),(-1,-1),criteria)
-        #cv2.drawChessboardCorners(frameLeft, (5,4), corners, found)
+        cv2.drawChessboardCorners(frameLeft, (5,4), corners, found)
         q = corners[[0, 4, 15, 19]]
         ret, rvecCalc, tvecs = cv2.solvePnP(objp, corners, loadedCalibFileMTX, loadedCalibFileDIST)
         from3dTransMatrix, jac = cv2.projectPoints(muffinFrameBase, rvecCalc, tvecs, loadedCalibFileMTX, loadedCalibFileDIST)
