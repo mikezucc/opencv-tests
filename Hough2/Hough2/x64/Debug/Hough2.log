@@ -1,0 +1,13 @@
+﻿Build started 11/17/2014 10:52:12 PM.
+     1>Project "C:\Users\mikez_000\Documents\GitHub\opencv-tests\Hough2\Hough2\Hough2.vcxproj" on node 2 (Build target(s)).
+     1>Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\mikez_000\Documents\GitHub\opencv-tests\Hough2\x64\Debug\Hough2.exe" /NOLOGO /LIBPATH:C:\opencv\build\x64\vc12\staticlib opencv_calib3d300d.lib opencv_core300d.lib opencv_features2d300d.lib opencv_flann300d.lib opencv_highgui300d.lib opencv_imgproc300d.lib opencv_ml300d.lib opencv_objdetect300d.lib opencv_photo300d.lib opencv_stitching300d.lib opencv_superres300d.lib opencv_ts300d.lib opencv_video300d.lib opencv_videostab300d.lib opencv_shape300d.lib zlibd.lib ippicvmt.lib libjasperd.lib libjpegd.lib libpngd.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:"C:\Users\mikez_000\Documents\GitHub\opencv-tests\Hough2\x64\Debug\Hough2.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\mikez_000\Documents\GitHub\opencv-tests\Hough2\x64\Debug\Hough2.lib" /MACHINE:X64 x64\Debug\HoughMain.obj
+     1>HoughMain.obj : error LNK2019: unresolved external symbol "class cv::Mat __cdecl cv::imread(class cv::String const &,int)" (?imread@cv@@YA?AVMat@1@AEBVString@1@H@Z) referenced in function main
+     1>opencv_highgui300d.lib(window_w32.obj) : error LNK2019: unresolved external symbol cvConvertImage referenced in function cvShowImage
+     1>opencv_highgui300d.lib(window_w32.obj) : error LNK2019: unresolved external symbol __imp_CreateToolbarEx referenced in function "int __cdecl icvCreateTrackbar(char const *,char const *,int *,int,void (__cdecl*)(int),void (__cdecl*)(int,void *),void *)" (?icvCreateTrackbar@@YAHPEBD0PEAHHP6AXH@ZP6AXHPEAX@Z3@Z)
+     1>C:\Users\mikez_000\Documents\GitHub\opencv-tests\Hough2\x64\Debug\Hough2.exe : fatal error LNK1120: 3 unresolved externals
+     1>Done Building Project "C:\Users\mikez_000\Documents\GitHub\opencv-tests\Hough2\Hough2\Hough2.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:03.88

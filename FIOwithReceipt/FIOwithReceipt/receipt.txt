@@ -1,0 +1,11 @@
+Author:Michael Zuccarino
+This program is designed for the restaurant Bob's Burgers, performing the operations of a cashier.
+It will generate a receipt based off of the entered meal amount, tax and entered tip.
+
+Thank You for Eating at Bob's Burgers
+ 123 McCurrahee Lane, 555-4334
+Your meal total_____________$51.13
+Total with tax______________$54.58
+Total with tip______________$62.77
+             TOTAL CHARGED: $62.77
+           Please come back :)
