@@ -103,7 +103,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Calibrate.cpp" />
     <ClCompile Include="InitialTest.cpp" />
+    <ClCompile Include="Recorder.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
