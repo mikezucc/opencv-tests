@@ -1,0 +1,17 @@
+﻿Build started 3/10/2015 1:47:04 PM.
+     1>Project "C:\Users\mikez_000\Documents\GitHub\opencv-tests\lab4\lab4\lab4.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source.cpp
+         Source.cpp
+     1>c:\users\mikez_000\documents\github\opencv-tests\lab4\lab4\source.cpp(50): warning C4018: '<' : signed/unsigned mismatch
+                 c:\users\mikez_000\documents\github\opencv-tests\lab4\lab4\source.cpp(45) : while compiling class template member function 'double templateFunctions<char>::total(void)'
+                 c:\users\mikez_000\documents\github\opencv-tests\lab4\lab4\source.cpp(20) : see reference to function template instantiation 'double templateFunctions<char>::total(void)' being compiled
+                 c:\users\mikez_000\documents\github\opencv-tests\lab4\lab4\source.cpp(58) : see reference to class template instantiation 'templateFunctions<char>' being compiled
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\mikez_000\Documents\GitHub\opencv-tests\lab4\Debug\lab4.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\mikez_000\Documents\GitHub\opencv-tests\lab4\Debug\lab4.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\mikez_000\Documents\GitHub\opencv-tests\lab4\Debug\lab4.lib" /MACHINE:X86 Debug\Source.obj
+         lab4.vcxproj -> C:\Users\mikez_000\Documents\GitHub\opencv-tests\lab4\Debug\lab4.exe
+     1>Done Building Project "C:\Users\mikez_000\Documents\GitHub\opencv-tests\lab4\lab4\lab4.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.65

@@ -1,0 +1,9 @@
+CLASS REPORT: Lowest: 43, Highest: 100, Average: 70, Median: 75
+--STUDENT NAME                SCORE -| COMPARE TO |- LOWEST - HIGHEST - MEAN - MEDIAN -
+luke danker----------------------45-----------------  no       no       below    below  
+Lord Vader----------------------58-----------------  no       no       below    below  
+Thomas Pete----------------------43-----------------  yes       no       below    below  
+Chan Chang----------------------84-----------------  no       no       above    above  
+Jeb Jose----------------------100-----------------  no       yes       above    above  
+Frankly John----------------------85-----------------  no       no       above    above  
+Zucc Michael----------------------75-----------------  no       no       above    equal  
